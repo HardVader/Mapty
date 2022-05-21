@@ -189,6 +189,11 @@ a:visited {
   color: var(--color-light--2);
 }
 
+/* Buttonds */
+.btn--hidden {
+  display: none;
+}
+
 /* MAP */
 #map {
   flex: 1;

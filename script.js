@@ -7,6 +7,7 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
+const btnEdit = document.querySelector('.btn__edit');
 
 class App {
   #map;
@@ -24,6 +25,8 @@ class App {
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+    containerWorkouts.addEventListener('click', this._editWorkout.bind(this));
+    containerWorkouts.addEventListener('click', this._removeWorkout.bind(this));
   }
 
   _getPosition() {
@@ -179,7 +182,6 @@ class App {
           <span class="workout__value">${workout.cadence}</span>
           <span class="workout__unit">spm</span>
         </div>
-      </li>
     `;
     if (workout.type === 'cycling')
       html += `
@@ -192,6 +194,13 @@ class App {
           <span class="workout__icon">⛰</span>
           <span class="workout__value">${workout.elevationGain}</span>
           <span class="workout__unit">m</span>
+        </div>
+      `;
+    html += `
+        <div class="buttons">
+          <button class="btn__edit">🖊</button>
+          <button class="btn__submit btn--hidden">✔</button>
+          <button class="btn__remove">✖</button>
         </div>
       </li>
       `;
@@ -232,6 +241,41 @@ class App {
 
   reset() {
     localStorage.removeItem('workouts');
+    location.reload();
+  }
+
+  _editWorkout(e) {
+    const btn = e.target;
+    if (!btn.classList.contains('btn__edit')) return;
+
+    const workoutEl = btn.closest('.workout');
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+    console.log(workout);
+
+    inputDistance.value = workout.distance;
+    inputDuration.value = workout.duration;
+    if (workout.type == 'running') inputCadence.value = workout.cadence;
+    else inputElevation.value = workout.elevation;
+
+    this._showForm();
+  }
+
+  _removeWorkout(e) {
+    if (!e.target.classList.contains('btn__remove')) return;
+
+    const workoutEl = e.target.closest('.workout');
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+    this.#workouts.splice(this.#workouts.indexOf(workout), 1);
+    localStorage.removeItem('workouts');
+
+    workoutEl.remove();
+
+    localStorage.removeItem('workouts');
+    this._setLocalStorage();
     location.reload();
   }
 }
