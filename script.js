@@ -29,6 +29,7 @@ class App {
     containerWorkouts.addEventListener('click', this._editWorkout.bind(this));
     containerWorkouts.addEventListener('click', this._removeWorkout.bind(this));
     btnRemoveAll.addEventListener('click', this._removeAllWorkouts.bind(this));
+    if (this.#workouts.length > 0) btnRemoveAll.classList.remove('btn--hidden');
   }
 
   _getPosition() {
@@ -136,6 +137,8 @@ class App {
 
     // Set local storage to all workouts
     this._setLocalStorage();
+
+    btnRemoveAll.classList.remove('btn--hidden');
   }
   _renderWorkoutMarker(workout) {
     L.marker(workout.coords)
@@ -251,6 +254,7 @@ class App {
       const htmlEl = form.nextSibling;
       htmlEl.remove();
     }
+    btnRemoveAll.classList.add('btn--hidden');
     this.reset();
   }
 
@@ -266,8 +270,10 @@ class App {
 
     inputDistance.value = workout.distance;
     inputDuration.value = workout.duration;
-    if (workout.type == 'running') inputCadence.value = workout.cadence;
-    else inputElevation.value = workout.elevation;
+
+    workout.type == 'running'
+      ? (inputCadence.value = workout.cadence)
+      : (inputElevation.value = workout.elevation);
 
     this._showForm();
   }
@@ -277,17 +283,17 @@ class App {
 
     const workoutEl = e.target.closest('.workout');
     console.log(workoutEl);
-    // const workout = this.#workouts.find(
-    //   work => work.id === workoutEl.dataset.id
-    // );
-    // this.#workouts.splice(this.#workouts.indexOf(workout), 1);
-    // localStorage.removeItem('workouts');
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+    this.#workouts.splice(this.#workouts.indexOf(workout), 1);
+    localStorage.removeItem('workouts');
 
-    // workoutEl.remove();
+    workoutEl.remove();
 
-    // localStorage.removeItem('workouts');
-    // this._setLocalStorage();
-    // location.reload();
+    localStorage.removeItem('workouts');
+    this._setLocalStorage();
+    location.reload();
   }
 }
 
