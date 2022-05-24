@@ -9,12 +9,14 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 const btnEdit = document.querySelector('.btn__edit');
 const btnRemoveAll = document.querySelector('.remover');
+const btnSort = document.querySelector('.btn--sort');
 
 class App {
   #map;
   #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
+  #sorted = false;
   constructor() {
     // Get user's position
     this._getPosition();
@@ -30,6 +32,7 @@ class App {
     containerWorkouts.addEventListener('click', this._removeWorkout.bind(this));
     btnRemoveAll.addEventListener('click', this._removeAllWorkouts.bind(this));
     if (this.#workouts.length > 0) btnRemoveAll.classList.remove('btn--hidden');
+    btnSort.addEventListener('click', this._sort.bind(this));
   }
 
   _getPosition() {
@@ -234,14 +237,23 @@ class App {
     localStorage.setItem('workouts', JSON.stringify(this.#workouts));
   }
 
-  _getLocalStorage() {
+  _getLocalStorage(sorted) {
     const data = JSON.parse(localStorage.getItem('workouts'));
 
     if (!data) return;
 
     this.#workouts = data;
 
-    this.#workouts.forEach(work => this._renderWorkout(work));
+    while (form.nextSibling) {
+      const htmlEl = form.nextSibling;
+      htmlEl.remove();
+    }
+
+    const works = sorted
+      ? this.#workouts.slice().sort((a, b) => a.distance - b.distance)
+      : this.#workouts;
+
+    works.forEach(work => this._renderWorkout(work));
   }
 
   reset() {
@@ -294,6 +306,13 @@ class App {
     localStorage.removeItem('workouts');
     this._setLocalStorage();
     location.reload();
+  }
+
+  _sort(e) {
+    e.preventDefault();
+    console.log('start sorting');
+    this.#sorted = !this.#sorted;
+    this._getLocalStorage(this.#sorted);
   }
 }
 
